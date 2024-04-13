@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shopping_list/data/dummy_items.dart';
+import 'package:shopping_list/models/grocery_item.dart';
 import 'package:shopping_list/screens/new_item.dart';
 
 class ShoppingListScreen extends StatefulWidget {
@@ -10,10 +10,18 @@ class ShoppingListScreen extends StatefulWidget {
 }
 
 class _ShoppingListScreenState extends State<ShoppingListScreen> {
-  void _handleOnAddNewItem() {
-    Navigator.push(context, MaterialPageRoute(builder: (ctx) {
-      return NewItem();
+  final List<GroceryItem> groceryList = [];
+
+  void _handleOnAddNewItem() async {
+    final groceryItem =
+        await Navigator.push(context, MaterialPageRoute(builder: (ctx) {
+      return const NewItem();
     }));
+
+    if (groceryItem == null) return;
+    setState(() {
+      groceryList.add(groceryItem);
+    });
   }
 
   @override
@@ -27,15 +35,25 @@ class _ShoppingListScreenState extends State<ShoppingListScreen> {
         title: const Text("Shopping List"),
       ),
       body: ListView.builder(
-        itemCount: groceryItems.length,
-        itemBuilder: (ctx, index) => ListTile(
-          title: Text(groceryItems[index].name),
-          leading: Container(
-            width: 24,
-            height: 24,
-            color: groceryItems[index].category.color,
+        itemCount: groceryList.length,
+        itemBuilder: (ctx, index) => Dismissible(
+          key: ValueKey(groceryList[index].id),
+          onDismissed: (direction) => {
+            setState(() {
+              //
+            })
+          },
+          behavior: HitTestBehavior.translucent,
+          direction: DismissDirection.horizontal,
+          child: ListTile(
+            title: Text(groceryList[index].name),
+            leading: Container(
+              width: 24,
+              height: 24,
+              color: groceryList[index].category.color,
+            ),
+            trailing: Text(groceryList[index].quantity.toString()),
           ),
-          trailing: Text(groceryItems[index].quantity.toString()),
         ),
       ),
     );
